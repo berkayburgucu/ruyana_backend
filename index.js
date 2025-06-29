@@ -1,9 +1,10 @@
 const express = require('express');
 const axios = require('axios');
+const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
 
 app.post('/base64', async (req, res) => {
   const imageUrl = req.body.imageUrl;
@@ -14,21 +15,23 @@ app.post('/base64', async (req, res) => {
 
   try {
     const roboflowApiKey = process.env.ROBOFLOW_API_KEY;
-    const modelId = "palm-line-detection-9zzh0"; // senin model ID
+    const modelId = 'palm-line-detection-9zzh0'; // kendi modelin
+    const url = `https://detect.roboflow.com/${modelId}?api_key=${roboflowApiKey}`;
 
-    const url = `https://detect.roboflow.com/${modelId}?api_key=${roboflowApiKey}&image=${encodeURIComponent(imageUrl)}`;
+    const roboflowResponse = await axios.post(url, {
+      image: imageUrl
+    });
 
-    const roboFlowResponse = await axios.get(url);
-
+    // Başarı cevabı
     res.json({
-      message: "Prediction completed",
-      result: roboFlowResponse.data
+      message: 'Prediction completed',
+      data: roboflowResponse.data
     });
 
   } catch (err) {
-    console.error("Roboflow API error:", err.response?.data || err.message);
+    console.error('Roboflow API error:', err.response?.data || err.message);
     res.status(500).json({
-      error: "Roboflow API failed",
+      error: 'Roboflow API failed',
       details: err.response?.data || err.message
     });
   }
