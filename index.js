@@ -27,4 +27,8 @@ app.post('/infer', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Roboflow API failed", details: err.response?.data || err.message });
   }
+  const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Sunucu ${PORT} portunda çalışıyor.`);
 });
