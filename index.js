@@ -1,37 +1,42 @@
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-require("dotenv").config();
+const express = require('express');
+const axios = require('axios');
+const dotenv = require('dotenv');
+const cors = require('cors');
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
-app.post("/predict", async (req, res) => {
+const PORT = process.env.PORT || 3000;
+const ROBOFLOW_MODEL = process.env.ROBOFLOW_MODEL;
+const ROBOFLOW_API_KEY = process.env.ROBOFLOW_API_KEY;
+
+app.post('/predict', async (req, res) => {
   const { imageUrl } = req.body;
 
-  try {
-    const response = await axios.post(
-      `https://detect.roboflow.com/${process.env.ROBOFLOW_MODEL}?api_key=${process.env.ROBOFLOW_API_KEY}`,
-      {
-        image: imageUrl
-      },
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
+  if (!imageUrl) {
+    return res.status(400).json({ error: 'imageUrl is required' });
+  }
 
-    res.json(response.data);
+  try {
+    const roboflowUrl = `https://detect.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_API_KEY}&image=${encodeURIComponent(imageUrl)}`;
+
+    const roboflowResponse = await axios.post(roboflowUrl);
+
+    res.json({
+      message: 'Success',
+      result: roboflowResponse.data
+    });
   } catch (err) {
     res.status(500).json({
-      error: "Roboflow API failed",
+      error: 'Roboflow API failed',
       details: err.response?.data || err.message
     });
   }
 });
 
-app.listen(3000, () => {
-  console.log("Sunucu 3000 portunda çalışıyor.");
+app.listen(PORT, () => {
+  console.log(`✅ Sunucu ${PORT} portunda çalışıyor.`);
 });
