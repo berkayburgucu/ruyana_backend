@@ -6,37 +6,25 @@ require('dotenv').config();
 const app = express();
 app.use(bodyParser.json());
 
-app.post('/base64', async (req, res) => {
-  const imageUrl = req.body.imageUrl;
-
-  if (!imageUrl) {
-    return res.status(400).json({ error: 'Image URL missing' });
-  }
+app.post('/infer', async (req, res) => {
+  const { imageUrl } = req.body;
+  if (!imageUrl) return res.status(400).json({ error: "URL eksik" });
 
   try {
-    const roboflowApiKey = process.env.ROBOFLOW_API_KEY;
-    const modelId = 'palm-line-detection-9zzh0'; // kendi modelin
-    const url = `https://detect.roboflow.com/${modelId}?api_key=${roboflowApiKey}`;
-
-    const roboflowResponse = await axios.post(url, {
-      image: imageUrl
-    });
-
-    // Başarı cevabı
-    res.json({
-      message: 'Prediction completed',
-      data: roboflowResponse.data
-    });
-
+    const rf = await axios.post(
+      `https://detect.roboflow.com/palm-line-detection-9zzh0/1`,
+      null,
+      {
+        params: {
+          api_key: process.env.ROBOFLOW_API_KEY,
+          image: imageUrl,
+          confidence: 40,
+          overlap: 30
+        }
+      }
+    );
+    res.json({ predictions: rf.data.predictions });
   } catch (err) {
-    console.error('Roboflow API error:', err.response?.data || err.message);
-    res.status(500).json({
-      error: 'Roboflow API failed',
-      details: err.response?.data || err.message
-    });
+    res.status(500).json({ error: "Roboflow API failed", details: err.response?.data || err.message });
   }
-});
-
-app.listen(3000, () => {
-  console.log('Sunucu 3000 portunda çalışıyor.');
 });
