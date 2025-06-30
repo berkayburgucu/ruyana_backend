@@ -13,7 +13,9 @@ app.post("/predict", async (req, res) => {
   try {
     const response = await axios.post(
       `https://detect.roboflow.com/${process.env.ROBOFLOW_MODEL}?api_key=${process.env.ROBOFLOW_API_KEY}`,
-      { image: imageUrl },
+      {
+        image: imageUrl
+      },
       {
         headers: {
           "Content-Type": "application/json"
@@ -25,7 +27,7 @@ app.post("/predict", async (req, res) => {
   } catch (err) {
     res.status(500).json({
       error: "Roboflow API failed",
-      details: err.response?.data || err.message,
+      details: err.response?.data || err.message
     });
   }
 });
