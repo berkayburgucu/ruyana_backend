@@ -21,14 +21,24 @@ app.post('/predict', async (req, res) => {
   }
 
   try {
-    const roboflowUrl = `https://detect.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_API_KEY}&image=${encodeURIComponent(imageUrl)}`;
-
-    const roboflowResponse = await axios.post(roboflowUrl);
+    const roboflowUrl = `https://infer.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_API_KEY}`;
+    
+    const roboflowResponse = await axios({
+      method: 'POST',
+      url: roboflowUrl,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        image: imageUrl
+      }
+    });
 
     res.json({
       message: 'Success',
       result: roboflowResponse.data
     });
+
   } catch (err) {
     res.status(500).json({
       error: 'Roboflow API failed',
