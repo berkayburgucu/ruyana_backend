@@ -23,16 +23,14 @@ app.post('/predict', async (req, res) => {
   try {
     const roboflowUrl = `https://infer.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_API_KEY}`;
     
-    const roboflowResponse = await axios({
-      method: 'POST',
-      url: roboflowUrl,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: {
-        image: imageUrl
-      }
-    });
+    const roboflowResponse = await axios.get(roboflowUrl, {
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  params: {
+    image: imageUrl
+  }
+});
 
     res.json({
       message: 'Success',
