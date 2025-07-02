@@ -21,18 +21,16 @@ app.post('/predict', async (req, res) => {
   }
 
   try {
-   const roboflowUrl = `https://detect.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_API_KEY}`;
-
-const roboflowResponse = await axios({
-  method: 'post',
-  url: roboflowUrl,
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  data: {
-    image: imageUrl  // bu satır sayesinde Postman'deki gibi body'den gider
-  }
-});
+    const roboflowUrl = `https://detect.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_API_KEY}`;
+    const roboflowResponse = await axios.post(
+      roboflowUrl,
+      imageUrl,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    );
 
     res.json({
       message: 'Success',
